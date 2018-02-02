@@ -1,18 +1,144 @@
-<!--
-  Generated template for the SearchPage page.
-
-  See http://ionicframework.com/docs/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
-
   <ion-navbar>
-    <ion-title>search</ion-title>
+    <ion-title>
+      {{'search' | translate}}
+    </ion-title>
   </ion-navbar>
-
 </ion-header>
 
+<ion-content>
+  <div padding>
+    <ion-col padding col-12>
+      <div #map id="map" style="height: 300px;"></div>
+      <!--<button ion-button (click)="locate()"><ion-icon name="locate"></ion-icon>Locate</button>-->
+    </ion-col>
+    <ion-searchbar [placeholder]="'search.search_by_name'|translate" style="border-radius: 10px;" mode="ios" [(ngModel)]="searchingName" (ionInput)="getItems($event)"></ion-searchbar>
+    <div padding-bottom="2px" style="margin-top: 10px;" *ngIf="items.length == 0">
+      <ion-segment [(ngModel)]="searchBy">
+        <ion-segment-button value="near">
+          <ion-icon name="ios-locate-outline" style="font-size: 1.5rem"> {{'near_by' | translate}}</ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="category">
+            <ion-icon name="ios-list-box-outline" style="font-size: 1.5rem"> {{'category' | translate}}</ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="city">
+            <ion-icon name="ios-globe-outline" style="font-size: 1.5rem"> {{'city' | translate}}</ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+  </div>
+  <div *ngIf="items.length > 0">
+    <ion-list>
+      <ion-item [navPush]="productDetail" [navParams]="{product_id: item.product_id}" *ngFor="let item of items">
+        <ion-avatar item-start>
+          <img src="{{item.thumb}}">
+        </ion-avatar>
+        <h2>{{ item.name }}</h2>
+        <p [innerHTML]="item.description"></p>
+      </ion-item>
+    </ion-list>
 
-<ion-content padding>
+    <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+      <ion-infinite-scroll-content></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+  <div *ngIf="items.length == 0" [ngSwitch]="searchBy">
+    <ion-list *ngSwitchCase="'near'">
+
+      <ion-scroll scrollX="true" style="height: 50px; margin-bottom: 10px; margin-left: 10px; margin-right:10px;">
+        <ul class="row home-category-grid-icons" id="iconSlide">
+          <li>
+            <a style="min-height: 60px; margin-left: 0; margin-right: 0; text-decoration: none;" class="col"
+             *ngFor="let category of categoryListMap"
+              [navPush]="categoryPage" [navParams]="category">
+              <div class="parent-background">
+                <div class="background-opacity">
+                  <div class="cat-name">
+                    <span class="white-space">{{category.category_name}}</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </ion-scroll>
+
+      <div class="list" *ngFor="let d of users">
+        <div style="display: flex; border: 1px solid #03c320; border-radius: 5px;margin: 15px; text-decoration: none;">
+          <a [navPush]="productDetail" [navParams]="{product_id: d.product_id}" style="border-right: solid 1px lightgrey;width: 75%; overflow: hidden;
+                                 text-overflow: ellipsis; white-space: nowrap;padding-top: 10px; text-decoration: none;">
+            <span>
+              <img style="width: 8%;" src="http://24gocheck.com/image/catalog/24gocheck%20Icons/usersale.png" />
+              <span>{{d.company || d.product_name}}</span>
+            </span>
+            <br>
+            <span>
+              <img style="width: 8%;" src="http://24gocheck.com/image/catalog/24gocheck%20Icons/location_icon.png" />
+              <span>{{d.address}}</span>
+            </span>
+            <br>
+            <span>
+              <img style="width: 8%;" src="http://24gocheck.com/image/catalog/24gocheck%20Icons/phone_icon.png" />
+              <span>{{d.phone}}</span>
+            </span>
+            <br>
+          </a>
+          <div style="padding-top: 10%; padding-left: 4%;">
+            <span>{{d.D}} km</span>
+          </div>
+        </div>
+      </div>
+
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'category'" padding>
+
+      <ion-item style="margin-left: 0; border: 2px solid lightgray; border-radius: 5px;">
+        <ion-label style="margin-left: 10px;">{{'category' | translate}}</ion-label>
+        <ion-select [(ngModel)]="categoryId" (ionChange)="searchByCategory(categoryId)">
+          <ion-option *ngFor="let cat of categoryList" [value]="cat.category_id">
+            {{cat.name}}
+          </ion-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item [navPush]="productDetail" [navParams]="{product_id: p.product_id}" *ngFor="let p of productByCategoryId">
+          <ion-avatar item-start>
+              <img src="{{p.thumb}}">
+          </ion-avatar>
+          <h2>{{ p.name }}</h2>
+          <p [innerHTML]="p.description"></p>
+
+      </ion-item>
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'city'">
+      <ion-item style="margin-left: 0; border: 2px solid lightgray; border-radius: 5px;">
+          <ion-label style="margin-left: 10px;">{{"city"|translate}}</ion-label>
+          <ion-select [(ngModel)]="zoneId" (ionChange)="searchByZone(zoneId)">
+            <ion-option *ngFor="let zone of allZone" [value]="zone.zone_id">{{zone.name}}</ion-option>
+          </ion-select>
+      </ion-item>
+
+
+      <ion-item *ngFor="let p of productsByZoneId">
+        <ion-avatar item-start>
+            <img src="{{p.thumb}}">
+        </ion-avatar>
+        <h2>{{ p.name }}</h2>
+        <p [innerHTML]="p.description"></p>
+
+    </ion-item>
+    </ion-list>
+  </div>
+
+  <!--<ion-row>-->
+  <!--<ion-col>-->
+  <!--<button ion-button outline block color="secondary" (click)="onLocate()">-->
+  <!--<ion-icon name="locate">Locate me</ion-icon>-->
+  <!--</button>-->
+  <!--</ion-col>-->
+  <!--</ion-row>-->
+  <!-- </ion-grid> -->
 
 </ion-content>

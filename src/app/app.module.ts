@@ -1,10 +1,17 @@
-import { HttpClientModule } from '@angular/common/http';
+import { IonicStorageModule } from '@ionic/storage';
+import { AddProductPage } from './../pages/accounts/product-management/add-product/add-product';
+import { TestPage } from './../pages/test/test';
+import { CartPage } from './../pages/cart/cart';
+import { ProductManagementPage } from './../pages/accounts/product-management/product-management';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ErrorHandler, NgModule } from '@angular/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BrowserModule } from '@angular/platform-browser';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
+import { Network } from '@ionic-native/network';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
-
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { AccountsPage } from '../pages/accounts/accounts';
 import { FeedbackPage } from '../pages/accounts/feedback/feedback';
 import { ProfilesPage } from '../pages/accounts/profiles/profiles';
@@ -27,6 +34,24 @@ import { ShopsPage } from './../pages/shops/shops';
 import { TabsPage } from './../pages/tabs/tabs';
 import { MyApp } from './app.component';
 import { ProductsProvider } from '../providers/products/products';
+import { NotificationsPage } from '../pages/notifications/notifications';
+import { Geolocation } from '@ionic-native/geolocation';
+import { CategoriesProvider } from '../providers/categories/categories';
+import { ConnectivityProvider } from '../providers/connectivity/connectivity';
+import { GoogleMapsProvider } from '../providers/google-maps/google-maps';
+import { LocationsProvider } from '../providers/locations/locations';
+import { CartPaymentInfoPage } from '../pages/cart/cart-payment-info/cart-payment-info';
+import { CartPaymentMethodPage } from '../pages/cart/cart-payment-method/cart-payment-method';
+import { MapPage } from "../pages/map/map";
+import { FileUploadOptions, FileTransfer, FileTransferObject } from "@ionic-native/file-transfer";
+import { Camera, CameraOptions } from "@ionic-native/camera";
+import { CartPaymentCheckoutPage } from '../pages/cart/cart-payment-checkout/cart-payment-checkout';
+import { NotificationsProvider } from '../providers/notifications/notifications';
+import { AccountsProvider } from '../providers/accounts/accounts';
+import { LaunchNavigator } from '@ionic-native/launch-navigator';
+import { ZonesProvider } from '../providers/zones/zones';
+
+
 
 @NgModule({
   declarations: [
@@ -48,12 +73,29 @@ import { ProductsProvider } from '../providers/products/products';
     CategoryPage,
     SearchPage,
     FrontSliderComponent,
-    TabsPage
+    TabsPage,
+    CartPage,
+    NotificationsPage,
+    ProductManagementPage,
+    MapPage,
+    TestPage,
+    AddProductPage,
+    CartPaymentInfoPage,
+    CartPaymentMethodPage,
+    CartPaymentCheckoutPage
   ],
   imports: [
     HttpClientModule,
     BrowserModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot(),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (setTranslateLoader),
+        deps: [HttpClient]
+      }
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -74,7 +116,16 @@ import { ProductsProvider } from '../providers/products/products';
     CategoriesPage,
     CategoryPage,
     SearchPage,
-    TabsPage
+    TabsPage,
+    CartPage,
+    NotificationsPage,
+    ProductManagementPage,
+    MapPage,
+    TestPage,
+    AddProductPage,
+    CartPaymentInfoPage,
+    CartPaymentMethodPage,
+    CartPaymentCheckoutPage
   ],
   providers: [
     StatusBar,
@@ -82,7 +133,24 @@ import { ProductsProvider } from '../providers/products/products';
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     TestProvider,
     ShopsProvider,
-    ProductsProvider
+    Geolocation,
+    Network,
+    ProductsProvider,
+    CategoriesProvider,
+    ConnectivityProvider,
+    GoogleMapsProvider,
+    LocationsProvider,
+    FileTransfer,
+    FileTransferObject,
+    Camera,
+    NotificationsProvider,
+    AccountsProvider,
+    LaunchNavigator,
+    ZonesProvider
   ]
 })
 export class AppModule {}
+
+export function setTranslateLoader(http: HttpClient){
+  return new TranslateHttpLoader(http, 'assets/i18n/','.json');
+}
